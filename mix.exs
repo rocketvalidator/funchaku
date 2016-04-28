@@ -28,8 +28,9 @@ defmodule Funchaku.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      httpoison: "~> 0.8",
-      poison:    "~> 1.5"
+      { :httpoison, "~> 0.8" },
+      { :poison,    "~> 1.5"},
+      { :mock,      "~> 0.1.1", only: :test}
     ]
   end
 end
