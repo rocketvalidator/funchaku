@@ -11,18 +11,23 @@ defmodule CheckerTest do
 
       messages = [ first_message | _ ] = results[:messages]
       errors   = [ first_error   | _ ] = results[:errors]
+      warnings = [ first_warning | _ ] = results[:warnings]
 
-      assert length(messages) == 11
+      assert length(messages) == 12
       assert length(errors)   == 11
+      assert length(warnings) ==  1
 
-      message = %{ "extract"     => " href=\"/\"><img\n src=\"/images/fire.png\" align=\"absmiddle\" width=\"30\" hspace=\"5\"><stron",
-                   "firstColumn" => 37, "firstLine" => 55, "hiliteLength" => 69,
-                   "hiliteStart" => 10, "lastColumn" => 64, "lastLine" => 56,
-                   "message"     => "The “align” attribute on the “img” element is obsolete. Use CSS instead.",
-                   "type"        => "error" }
+      warning = %{"extract" => "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n<html",
+                  "firstColumn" => 1, "hiliteLength" => 109, "hiliteStart" => 0, "lastColumn" => 109, "lastLine" => 1,
+                  "message" => "Obsolete doctype. Expected “<!DOCTYPE html>”.", "subType" => "warning", "type" => "info"}
 
-      assert first_message == message
-      assert first_error   == message
+      error = %{"extract" => " href=\"/\"><img\n src=\"/images/fire.png\" align=\"absmiddle\" width=\"30\" hspace=\"5\"><stron",
+                "firstColumn" => 37, "firstLine" => 55, "hiliteLength" => 69, "hiliteStart" => 10, "lastColumn" => 64, "lastLine" => 56,
+                "message" => "The “align” attribute on the “img” element is obsolete. Use CSS instead.", "type" => "error"}
+
+      assert first_message == warning
+      assert first_warning == warning
+      assert first_error   == error
     end
   end
 
@@ -41,7 +46,7 @@ defmodule CheckerTest do
         "firstColumn": 1,
         "subType": "warning",
         "message": "Obsolete doctype. Expected “<!DOCTYPE html>”.",
-        "extract": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n<html",
+        "extract": "<!DOCTYPE html PUBLIC \\"-//W3C//DTD XHTML 1.0 Strict//EN\\" \\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\\">\n<html",
         "hiliteStart": 0,
         "hiliteLength": 109
       }, {
@@ -51,7 +56,7 @@ defmodule CheckerTest do
         "lastColumn": 64,
         "firstColumn": 37,
         "message": "The “align” attribute on the “img” element is obsolete. Use CSS instead.",
-        "extract": " href=\"/\"><img\n src=\"/images/fire.png\" align=\"absmiddle\" width=\"30\" hspace=\"5\"><stron",
+        "extract": " href=\\"/\\"><img\n src=\\"/images/fire.png\\" align=\\"absmiddle\\" width=\\"30\\" hspace=\\"5\\"><stron",
         "hiliteStart": 10,
         "hiliteLength": 69
       }, {
@@ -61,7 +66,7 @@ defmodule CheckerTest do
         "lastColumn": 64,
         "firstColumn": 37,
         "message": "The “hspace” attribute on the “img” element is obsolete. Use CSS instead.",
-        "extract": " href=\"/\"><img\n src=\"/images/fire.png\" align=\"absmiddle\" width=\"30\" hspace=\"5\"><stron",
+        "extract": " href=\\"/\\"><img\n src=\\"/images/fire.png\\" align=\\"absmiddle\\" width=\\"30\\" hspace=\\"5\\"><stron",
         "hiliteStart": 10,
         "hiliteLength": 69
       }, {
@@ -71,7 +76,7 @@ defmodule CheckerTest do
         "lastColumn": 64,
         "firstColumn": 37,
         "message": "An “img” element must have an “alt” attribute, except under certain conditions. For details, consult guidance on providing text alternatives for images.",
-        "extract": " href=\"/\"><img\n src=\"/images/fire.png\" align=\"absmiddle\" width=\"30\" hspace=\"5\"><stron",
+        "extract": " href=\\"/\\"><img\n src=\\"/images/fire.png\\" align=\\"absmiddle\\" width=\\"30\\" hspace=\\"5\\"><stron",
         "hiliteStart": 10,
         "hiliteLength": 69
       }, {
@@ -98,7 +103,7 @@ defmodule CheckerTest do
         "lastColumn": 43,
         "firstColumn": 19,
         "message": "Unclosed element “a”.",
-        "extract": "      <li><a href=\"/pages/abyss/1\">Enter ",
+        "extract": "      <li><a href=\\"/pages/abyss/1\\">Enter ",
         "hiliteStart": 10,
         "hiliteLength": 25
       }, {
@@ -126,7 +131,7 @@ defmodule CheckerTest do
         "lastColumn": 161,
         "firstColumn": 15,
         "message": "An “a” start tag seen but an element of the same type was already open.",
-        "extract": "          <a href=\"https://twitter.com/share\" class=\"twitter-share-button\" data-url=\"http://validationhell.com\" data-via=\"SiteValidator\" data-hashtags=\"w3c\">Tweet<",
+        "extract": "          <a href=\\"https://twitter.com/share\\" class=\\"twitter-share-button\\" data-url=\\"http://validationhell.com\\" data-via=\\"SiteValidator\\" data-hashtags=\\"w3c\\">Tweet<",
         "hiliteStart": 10,
         "hiliteLength": 147
       }, {
@@ -135,7 +140,7 @@ defmodule CheckerTest do
         "lastColumn": 161,
         "firstColumn": 15,
         "message": "End tag “a” violates nesting rules.",
-        "extract": "          <a href=\"https://twitter.com/share\" class=\"twitter-share-button\" data-url=\"http://validationhell.com\" data-via=\"SiteValidator\" data-hashtags=\"w3c\">Tweet<",
+        "extract": "          <a href=\\"https://twitter.com/share\\" class=\\"twitter-share-button\\" data-url=\\"http://validationhell.com\\" data-via=\\"SiteValidator\\" data-hashtags=\\"w3c\\">Tweet<",
         "hiliteStart": 10,
         "hiliteLength": 147
       }, {
@@ -145,7 +150,7 @@ defmodule CheckerTest do
         "firstColumn": 15,
         "subType": "fatal",
         "message": "Cannot recover after last error. Any further errors will be ignored.",
-        "extract": "          <a href=\"https://twitter.com/share\" class=\"twitter-share-button\" data-url=\"http://validationhell.com\" data-via=\"SiteValidator\" data-hashtags=\"w3c\">Tweet<",
+        "extract": "          <a href=\\"https://twitter.com/share\\" class=\\"twitter-share-button\\" data-url=\\"http://validationhell.com\\" data-via=\\"SiteValidator\\" data-hashtags=\\"w3c\\">Tweet<",
         "hiliteStart": 10,
         "hiliteLength": 147
       }]
