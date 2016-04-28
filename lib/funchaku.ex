@@ -1,0 +1,2 @@
+defmodule Funchaku do
+end
