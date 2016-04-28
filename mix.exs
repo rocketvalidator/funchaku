@@ -5,6 +5,8 @@ defmodule Funchaku.Mixfile do
     [app: :funchaku,
      version: "0.0.1",
      elixir: "~> 1.2",
+     description: "Elixir client for the Nu HTML Checker",
+     package: package,
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps]
@@ -31,6 +33,14 @@ defmodule Funchaku.Mixfile do
       { :httpoison, "~> 0.8" },
       { :poison,    "~> 1.5"},
       { :mock,      "~> 0.1.1", only: :test}
+    ]
+  end
+
+  defp package do
+    [
+      licenses: ["MIT"],
+      maintainers: ["Jaime Iniesta"],
+      links: %{"GitHub" => "https://github.com/sitevalidator/funchaku"}
     ]
   end
 end
