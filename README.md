@@ -2,7 +2,7 @@
 
 Funchaku is an Elixir client for the [Nu HTML Checker](https://github.com/validator/validator). It lets you easily check HTML markup of web pages, by querying a remote instance of the checker.
 
-![Nunchaku image](https://dl.dropboxusercontent.com/u/2268180/nunchaku/Nunchaku.png "Nunchaku image taken from http://commons.wikimedia.org/wiki/File:Nunchaku.png")
+![Nunchaku image](https://dl.dropboxusercontent.com/u/2268180/nunchaku/Funchaku.png "Nunchaku image taken from http://commons.wikimedia.org/wiki/File:Nunchaku.png")
 
 ## Installation
 
