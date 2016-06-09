@@ -1,19 +1,21 @@
 defmodule Funchaku.Checker do
-  def check(url) do
-    validator_url(url)
+  def check(url, options \\ []) do
+    options = Keyword.merge(default_options, options)
+
+    vnu_request_querystring(options[:checker_url], url)
     |> HTTPoison.get
     |> handle_response
   end
 
-  def validator_url(url) do
-    "http://validator.w3.org/nu/?out=json&doc=#{url}"
+  defp vnu_request_querystring(checker_url, url) do
+    "#{checker_url}?out=json&doc=#{url}"
   end
 
-  def handle_response({ :ok, %{status_code: 200, body: body }}) do
+  defp handle_response({ :ok, %{status_code: 200, body: body }}) do
     { :ok,    Poison.Parser.parse!(body) |> parsed_messages }
   end
 
-  def handle_response({ _,   %{status_code: _,   body: body}}) do
+  defp handle_response({ _,   %{status_code: _,   body: body}}) do
     { :error, Poison.Parser.parse!(body) }
   end
 
@@ -29,5 +31,11 @@ defmodule Funchaku.Checker do
        warnings: warnings,
        extra:    extra
     }
+  end
+
+  defp default_options do
+    [
+      checker_url: "http://validator.w3.org/nu/"
+    ]
   end
 end

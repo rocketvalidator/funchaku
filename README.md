@@ -11,7 +11,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
   1. Add funchaku to your list of dependencies in `mix.exs`:
 
         def deps do
-          [{:funchaku, "~> 0.0.1"}]
+          [{:funchaku, "~> 0.1.0"}]
         end
 
   2. Ensure funchaku is started before your application:
@@ -46,7 +46,11 @@ The `results[:messages]` list contains all messages returned by the checker, but
 
 ## Using an alternate server
 
-TO DO.
+By default, Funchaku will query the Nu HTML Checker at http://validator.w3.org/nu but you're encouraged to install your own instance and use it instead. You can follow the [Nu installation instructions](https://github.com/validator/validator) and then specify the alternate server like this:
+
+```ruby
+Funchaku.check('http://example.com', checker_url: 'http://example.com/validator')
+```
 
 ## Specifying a custom User-Agent string
 

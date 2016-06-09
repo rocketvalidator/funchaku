@@ -1,6 +1,6 @@
 defmodule CheckerTest do
   use ExUnit.Case
-  import Funchaku.Checker, only: [ check: 1 ]
+  import Funchaku.Checker
   import Mock
 
   test "validates a URL" do
@@ -28,6 +28,18 @@ defmodule CheckerTest do
       assert first_message == warning
       assert first_warning == warning
       assert first_error   == error
+    end
+  end
+
+  test "uses http://validator.w3.org/nu/ by default" do
+    with_mock HTTPoison, [get: fn("http://validator.w3.org/nu/?out=json&doc=http://validationhell.com") -> mocked_validation end] do
+      { :ok, _ } = check "http://validationhell.com"
+    end
+  end
+
+  test "can use another validator via the checker_url option" do
+    with_mock HTTPoison, [get: fn("http://example.com/validator/?out=json&doc=http://validationhell.com") -> mocked_validation end] do
+      { :ok, _ } = check("http://validationhell.com", checker_url: "http://example.com/validator/")
     end
   end
 

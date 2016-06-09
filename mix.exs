@@ -3,7 +3,7 @@ defmodule Funchaku.Mixfile do
 
   def project do
     [app: :funchaku,
-     version: "0.0.1",
+     version: "0.1.0",
      elixir: "~> 1.2",
      description: "Elixir client for the Nu HTML Checker",
      package: package,
