@@ -11,12 +11,12 @@ defmodule Funchaku.Checker do
     "#{checker_url}?out=json&doc=#{url}"
   end
 
-  defp handle_response({ :ok, %{status_code: 200, body: body }}) do
+  defp handle_response({ :ok, %{ status_code: 200, body: body }}) do
     { :ok,    Poison.Parser.parse!(body) |> parsed_messages }
   end
 
-  defp handle_response({ _,   %{status_code: _,   body: body}}) do
-    { :error, Poison.Parser.parse!(body) }
+  defp handle_response({ :error, %{ reason: reason } }) do
+    { :error, reason }
   end
 
   defp parsed_messages(json) do

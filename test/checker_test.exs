@@ -43,8 +43,22 @@ defmodule CheckerTest do
     end
   end
 
+  test "handles http errors" do
+    with_mock HTTPoison, [get: fn(_url) -> mocked_http_error(:timeout) end] do
+      { :error, :timeout } = check("http://example.com")
+    end
+
+    with_mock HTTPoison, [get: fn(_url) -> mocked_http_error(:econnrefused) end] do
+      { :error, :econnrefused } = check("http://example.com")
+    end
+  end
+
   defp mocked_validation do
     { :ok, %{ status_code: 200, body: mocked_json } }
+  end
+
+  defp mocked_http_error(reason) do
+    { :error, %HTTPoison.Error{id: nil, reason: reason} }
   end
 
   defp mocked_json do
