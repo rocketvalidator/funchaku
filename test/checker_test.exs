@@ -53,8 +53,26 @@ defmodule CheckerTest do
     end
   end
 
+  test "treats non-200 status code as errors" do
+    with_mock HTTPoison, [get: fn(_url) -> mocked_response(301) end] do
+      { :error, 301 } = check("http://example.com")
+    end
+
+    with_mock HTTPoison, [get: fn(_url) -> mocked_response(404) end] do
+      { :error, 404 } = check("http://example.com")
+    end
+
+    with_mock HTTPoison, [get: fn(_url) -> mocked_response(500) end] do
+      { :error, 500 } = check("http://example.com")
+    end
+  end
+
   defp mocked_validation do
     { :ok, %{ status_code: 200, body: mocked_json } }
+  end
+
+  defp mocked_response(status) do
+    { :ok, %{ status_code: status } }
   end
 
   defp mocked_http_error(reason) do

@@ -15,6 +15,10 @@ defmodule Funchaku.Checker do
     { :ok,    Poison.Parser.parse!(body) |> parsed_messages }
   end
 
+  defp handle_response({ :ok, %{ status_code: status }}) do
+    { :error, status }
+  end
+
   defp handle_response({ :error, %{ reason: reason } }) do
     { :error, reason }
   end
