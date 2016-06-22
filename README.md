@@ -1,5 +1,7 @@
 # Funchaku
 
+[![Deps Status](https://beta.hexfaktor.org/badge/all/github/sitevalidator/funchaku.svg)](https://beta.hexfaktor.org/github/sitevalidator/funchaku)
+
 Funchaku is an Elixir client for the [Nu HTML Checker](https://github.com/validator/validator). It lets you easily check HTML markup of web pages, by querying a remote instance of the checker.
 
 ![Nunchaku image](https://dl.dropboxusercontent.com/u/2268180/nunchaku/Funchaku.png "Nunchaku image taken from http://commons.wikimedia.org/wiki/File:Nunchaku.png")
