@@ -13,15 +13,15 @@ defmodule Funchaku.Checker do
 
   ## Examples
 
-    iex> { :ok, results } = Funchaku.check("http://validationhell.com")
-    iex> length(results[:messages])
-    11
-    iex> length(results[:errors])
-    11
-    iex> length(results[:warnings])
-    0
-    iex> List.first(results[:errors])["message"]
-    "The “align” attribute on the “img” element is obsolete. Use CSS instead."
+      iex> { :ok, results } = Funchaku.check("http://validationhell.com")
+      iex> length(results[:messages])
+      11
+      iex> length(results[:errors])
+      11
+      iex> length(results[:warnings])
+      0
+      iex> List.first(results[:errors])["message"]
+      "The “align” attribute on the “img” element is obsolete. Use CSS instead."
   """
   def check(url, options \\ []) do
     options = Keyword.merge(default_options, options)
@@ -41,15 +41,15 @@ defmodule Funchaku.Checker do
 
   ## Examples
 
-    iex> { :ok, results } = Funchaku.check_text "<!DOCTYPE html><html></html>"
-    iex> length(results[:messages])
-    1
-    iex> length(results[:errors])
-    1
-    iex> length(results[:warnings])
-    0
-    iex> List.first(results[:errors])["message"]
-    "Element “head” is missing a required instance of child element “title”."
+      iex> { :ok, results } = Funchaku.check_text "<!DOCTYPE html><html></html>"
+      iex> length(results[:messages])
+      1
+      iex> length(results[:errors])
+      1
+      iex> length(results[:warnings])
+      0
+      iex> List.first(results[:errors])["message"]
+      "Element “head” is missing a required instance of child element “title”."
   """
   def check_text(html, options \\ []) do
     options = Keyword.merge(default_options, options)
