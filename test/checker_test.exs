@@ -1,5 +1,7 @@
 defmodule CheckerTest do
   use ExUnit.Case
+  doctest Funchaku.Checker
+
   import Funchaku.Checker
   import Mock
 
