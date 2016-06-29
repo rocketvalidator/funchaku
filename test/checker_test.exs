@@ -31,6 +31,55 @@ defmodule CheckerTest do
     end
   end
 
+  test "validates via text" do
+    with_mock HTTPoison, [post: fn(_url, _body) -> mocked_validation_for_text end] do
+      { status, results } = check_text """
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <script language='javascript'></script>
+            <title>Test
+          </head>
+          <body>
+            <p>
+          </body>
+        </html>
+      """
+
+      assert status == :ok
+
+      messages = [ first_message | _ ] = results[:messages]
+      errors   = [ first_error   | _ ] = results[:errors]
+      warnings = [ first_warning | _ ] = results[:warnings]
+
+      assert length(messages) == 3
+      assert length(errors)   == 2
+      assert length(warnings) == 1
+
+      warning = %{ "hiliteStart"  => 10,
+                   "extract"      => "          <script language='javascript'></scri",
+                   "hiliteLength" => 30,
+                   "lastColumn"   => 42,
+                   "lastLine"     => 4,
+                   "message"      => "The “language” attribute on the “script” element is obsolete. You can safely omit it.",
+                   "type"         => "info",
+                   "firstColumn"  => 13,
+                   "subType"      => "warning"}
+
+      error = %{ "hiliteLength"   => 1,
+                 "hiliteStart"    => 10,
+                 "lastLine"       => 10,
+                 "message"        => "End of file seen when expecting text or an end tag.",
+                 "type"           => "error",
+                 "extract"        => "    </html>",
+                 "lastColumn"     => 15}
+
+      assert first_message == warning
+      assert first_warning == warning
+      assert first_error   == error
+    end
+  end
+
   test "uses http://validator.w3.org/nu/ by default" do
     with_mock HTTPoison, [get: fn("http://validator.w3.org/nu/?out=json&doc=http://validationhell.com") -> mocked_validation end] do
       { :ok, _ } = check "http://validationhell.com"
@@ -69,14 +118,6 @@ defmodule CheckerTest do
 
   defp mocked_validation do
     { :ok, %{ status_code: 200, body: mocked_json } }
-  end
-
-  defp mocked_response(status) do
-    { :ok, %{ status_code: status } }
-  end
-
-  defp mocked_http_error(reason) do
-    { :error, %HTTPoison.Error{id: nil, reason: reason} }
   end
 
   defp mocked_json do
@@ -200,5 +241,57 @@ defmodule CheckerTest do
       }]
     }
     """
+  end
+
+  defp mocked_validation_for_text do
+    { :ok, %{ status_code: 200, body: mocked_json_for_text } }
+  end
+
+  defp mocked_json_for_text do
+    """
+    {
+      "messages": [{
+        "type": "info",
+        "lastLine": 4,
+        "lastColumn": 42,
+        "firstColumn": 13,
+        "subType": "warning",
+        "message": "The “language” attribute on the “script” element is obsolete. You can safely omit it.",
+        "extract": "          <script language='javascript'></scri",
+        "hiliteStart": 10,
+        "hiliteLength": 30
+      }, {
+        "type": "error",
+        "lastLine": 10,
+        "lastColumn": 15,
+        "message": "End of file seen when expecting text or an end tag.",
+        "extract": "    </html>",
+        "hiliteStart": 10,
+        "hiliteLength": 1
+      }, {
+        "type": "error",
+        "lastLine": 5,
+        "lastColumn": 19,
+        "firstColumn": 13,
+        "message": "Unclosed element “title”.",
+        "extract": "          <title>Test\n ",
+        "hiliteStart": 10,
+        "hiliteLength": 7
+      }],
+      "source": {
+        "type": "text/html",
+        "encoding": "utf-8",
+        "code": "        <!DOCTYPE html>\n        <html>\n          <head>\n            <script language='javascript'></script>\n            <title>Test\n          </head>\n          <body>\n            <p>\n          </body>\n        </html>"
+      }
+    }
+    """
+  end
+
+  defp mocked_response(status) do
+    { :ok, %{ status_code: status } }
+  end
+
+  defp mocked_http_error(reason) do
+    { :error, %HTTPoison.Error{id: nil, reason: reason} }
   end
 end

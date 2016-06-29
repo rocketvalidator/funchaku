@@ -7,6 +7,14 @@ defmodule Funchaku.Checker do
     |> handle_response
   end
 
+  def check_text(html, options \\ []) do
+    options = Keyword.merge(default_options, options)
+
+    options[:checker_url]
+    |> HTTPoison.post({:multipart, [{"out", "json"}, {"content", html}]})
+    |> handle_response
+  end
+
   defp vnu_request_querystring(checker_url, url) do
     "#{checker_url}?out=json&doc=#{url}"
   end

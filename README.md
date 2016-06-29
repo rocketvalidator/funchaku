@@ -32,6 +32,16 @@ To check HTML on a web page, just pass it the URL to check, like this:
 { status, results } = Funchaku.check("http://example.com")
 ```
 
+You can also validate HTML passing directly the text, like this:
+
+```elixir
+{ status, results } = Funchaku.check_text """
+  <!DOCTYPE html>
+  <html>
+  </html>
+"""
+```
+
 Validation messages can be accessed like this:
 
 ```elixir
@@ -52,7 +62,7 @@ The `results[:messages]` list contains all messages returned by the checker, but
 
 By default, Funchaku will query the Nu HTML Checker at http://validator.w3.org/nu but you're encouraged to install your own instance and use it instead. You can follow the [Nu installation instructions](https://github.com/validator/validator) and then specify the alternate server like this:
 
-```ruby
+```elixir
 Funchaku.check('http://example.com', checker_url: 'http://example.com/validator')
 ```
 
