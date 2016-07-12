@@ -82,7 +82,7 @@ defmodule Funchaku.Checker do
     non_document_errors = Enum.filter(messages, &(&1["type"]    == "non-document-error"))
     errors              = Enum.filter(messages, &(&1["type"]    == "error"))
     warnings            = Enum.filter(messages, &(&1["subType"] == "warning"))
-    extra               = (messages -- errors) -- warnings
+    extra               = ((messages -- non_document_errors) -- errors) -- warnings
 
     %{
        messages:            messages,
