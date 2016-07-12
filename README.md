@@ -15,7 +15,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
   1. Add funchaku to your list of dependencies in `mix.exs`:
 
         def deps do
-          [{:funchaku, "~> 0.1.0"}]
+          [{:funchaku, "~> 0.3.0"}]
         end
 
   2. Ensure funchaku is started before your application:
@@ -56,7 +56,7 @@ results[:messages]
 #    "type" => "error"}]
 ```
 
-The `results[:messages]` list contains all messages returned by the checker, but you'll typically be more interested in `results[:errors]` (that contains all messages of type "error") and `results[:warnings]` (that contains all messages of subtype "warning").
+The `results[:messages]` list contains all messages returned by the checker, but you'll typically be more interested in `results[:errors]` (that contains all messages of type "error") and `results[:warnings]` (that contains all messages of subtype "warning"), and also in `results[:non_document_errors]` where you'll find errors related to 404s, misbehaving servers, etc.
 
 ## Using an alternate server
 

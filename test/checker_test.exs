@@ -33,6 +33,27 @@ defmodule CheckerTest do
     end
   end
 
+  test "treats non-document-error separate from errors" do
+    with_mock HTTPoison, [get: fn(_url) -> mocked_validation_for_non_document_error end] do
+      { status, results } = check "http://example.com/404"
+
+      assert status == :ok
+
+      messages            = [ first_message | _ ]            = results[:messages]
+      non_document_errors = [ first_non_document_error | _ ] = results[:non_document_errors]
+
+      assert length(messages) == 1
+      assert length(non_document_errors) == 1
+
+      error = %{ "message" => "HTTP resource not retrievable. The HTTP status from the remote server was: 404.",
+                 "type"    => "non-document-error",
+                 "subType" => "io"}
+
+      assert first_message == error
+      assert first_non_document_error == error
+    end
+  end
+
   test "validates via text" do
     with_mock HTTPoison, [post: fn(_url, _body) -> mocked_validation_for_text end] do
       { status, results } = check_text """
@@ -240,6 +261,23 @@ defmodule CheckerTest do
         "extract": "          <a href=\\"https://twitter.com/share\\" class=\\"twitter-share-button\\" data-url=\\"http://validationhell.com\\" data-via=\\"SiteValidator\\" data-hashtags=\\"w3c\\">Tweet<",
         "hiliteStart": 10,
         "hiliteLength": 147
+      }]
+    }
+    """
+  end
+
+  defp mocked_validation_for_non_document_error do
+    { :ok, %{ status_code: 200, body: mocked_json_for_non_document_error } }
+  end
+
+  defp mocked_json_for_non_document_error do
+    """
+    {
+      "url": "http://example.com/404",
+      "messages": [{
+        "type": "non-document-error",
+        "subType": "io",
+        "message": "HTTP resource not retrievable. The HTTP status from the remote server was: 404."
       }]
     }
     """

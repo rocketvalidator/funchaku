@@ -44,6 +44,8 @@ defmodule Funchaku.Checker do
       iex> { :ok, results } = Funchaku.check_text "<!DOCTYPE html><html></html>"
       iex> length(results[:messages])
       1
+      iex> length(results[:non_document_errors])
+      0
       iex> length(results[:errors])
       1
       iex> length(results[:warnings])
@@ -76,16 +78,18 @@ defmodule Funchaku.Checker do
   end
 
   defp parsed_messages(json) do
-    messages = json["messages"]
-    errors   = Enum.filter(messages, &(&1["type"]    == "error"))
-    warnings = Enum.filter(messages, &(&1["subType"] == "warning"))
-    extra    = (messages -- errors) -- warnings
+    messages            = json["messages"]
+    non_document_errors = Enum.filter(messages, &(&1["type"]    == "non-document-error"))
+    errors              = Enum.filter(messages, &(&1["type"]    == "error"))
+    warnings            = Enum.filter(messages, &(&1["subType"] == "warning"))
+    extra               = (messages -- errors) -- warnings
 
     %{
-       messages: messages,
-       errors:   errors,
-       warnings: warnings,
-       extra:    extra
+       messages:            messages,
+       non_document_errors: non_document_errors,
+       errors:              errors,
+       warnings:            warnings,
+       extra:               extra
     }
   end
 
