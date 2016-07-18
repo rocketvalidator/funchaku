@@ -78,7 +78,7 @@ defmodule Funchaku.Checker do
   end
 
   defp parsed_messages(json) do
-    messages            = json["messages"]
+    messages            = json["messages"] |> adapt_message_structure
     non_document_errors = Enum.filter(messages, &(&1["type"]    == "non-document-error"))
     errors              = Enum.filter(messages, &(&1["type"]    == "error"))
     warnings            = Enum.filter(messages, &(&1["subType"] == "warning"))
@@ -91,6 +91,16 @@ defmodule Funchaku.Checker do
        warnings:            warnings,
        extra:               extra
     }
+  end
+
+  def adapt_message_structure(messages) do
+    Enum.map(messages, fn(m) ->
+      if(is_nil(m["firstLine"]) and not is_nil(m["lastLine"])) do
+        Map.put(m, "firstLine", m["lastLine"])
+      else
+        m
+      end
+    end)
   end
 
   defp default_options do

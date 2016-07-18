@@ -20,7 +20,7 @@ defmodule CheckerTest do
       assert length(warnings) ==  1
 
       warning = %{"extract" => "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n<html",
-                  "firstColumn" => 1, "hiliteLength" => 109, "hiliteStart" => 0, "lastColumn" => 109, "lastLine" => 1,
+                  "firstColumn" => 1, "hiliteLength" => 109, "hiliteStart" => 0, "lastColumn" => 109, "firstLine" => 1, "lastLine" => 1,
                   "message" => "Obsolete doctype. Expected “<!DOCTYPE html>”.", "subType" => "warning", "type" => "info"}
 
       error = %{"extract" => " href=\"/\"><img\n src=\"/images/fire.png\" align=\"absmiddle\" width=\"30\" hspace=\"5\"><stron",
@@ -54,6 +54,17 @@ defmodule CheckerTest do
     end
   end
 
+  test "firstLine is taken from lastLine if missing" do
+    with_mock HTTPoison, [get: fn(_url) -> mocked_validation end] do
+      { :ok, results } = check "http://validationhell.com"
+
+      [ first_message | [second_message | _] ] = results[:messages]
+
+      assert first_message["firstLine"] == 1
+      assert second_message["firstLine"] == 55
+    end
+  end
+
   test "validates via text" do
     with_mock HTTPoison, [post: fn(_url, _body) -> mocked_validation_for_text end] do
       { status, results } = check_text """
@@ -83,6 +94,7 @@ defmodule CheckerTest do
                    "extract"      => "          <script language='javascript'></scri",
                    "hiliteLength" => 30,
                    "lastColumn"   => 42,
+                   "firstLine"    => 4,
                    "lastLine"     => 4,
                    "message"      => "The “language” attribute on the “script” element is obsolete. You can safely omit it.",
                    "type"         => "info",
@@ -91,6 +103,7 @@ defmodule CheckerTest do
 
       error = %{ "hiliteLength"   => 1,
                  "hiliteStart"    => 10,
+                 "firstLine"      => 10,
                  "lastLine"       => 10,
                  "message"        => "End of file seen when expecting text or an end tag.",
                  "type"           => "error",
