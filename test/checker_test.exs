@@ -6,7 +6,7 @@ defmodule CheckerTest do
   import Mock
 
   test "validates a URL" do
-    with_mock HTTPoison, [get: fn(_url) -> mocked_validation end] do
+    with_mock HTTPoison, [get: fn(_url, _headers, _options) -> mocked_validation end] do
       { status, results } = check "http://validationhell.com"
 
       assert status == :ok
@@ -34,7 +34,7 @@ defmodule CheckerTest do
   end
 
   test "treats non-document-error separate from errors" do
-    with_mock HTTPoison, [get: fn(_url) -> mocked_validation_for_non_document_error end] do
+    with_mock HTTPoison, [get: fn(_url, _headers, _options) -> mocked_validation_for_non_document_error end] do
       { status, results } = check "http://example.com/404"
 
       assert status == :ok
@@ -55,7 +55,7 @@ defmodule CheckerTest do
   end
 
   test "firstLine is taken from lastLine if missing" do
-    with_mock HTTPoison, [get: fn(_url) -> mocked_validation end] do
+    with_mock HTTPoison, [get: fn(_url, _headers, _options) -> mocked_validation end] do
       { :ok, results } = check "http://validationhell.com"
 
       [ first_message | [second_message | _] ] = results[:messages]
@@ -117,37 +117,37 @@ defmodule CheckerTest do
   end
 
   test "uses http://validator.w3.org/nu/ by default" do
-    with_mock HTTPoison, [get: fn("http://validator.w3.org/nu/?out=json&doc=http://validationhell.com") -> mocked_validation end] do
+    with_mock HTTPoison, [get: fn("http://validator.w3.org/nu/?out=json&doc=http://validationhell.com", _headers, _options) -> mocked_validation end] do
       { :ok, _ } = check "http://validationhell.com"
     end
   end
 
   test "can use another validator via the checker_url option" do
-    with_mock HTTPoison, [get: fn("http://example.com/validator/?out=json&doc=http://validationhell.com") -> mocked_validation end] do
+    with_mock HTTPoison, [get: fn("http://example.com/validator/?out=json&doc=http://validationhell.com", _headers, _options) -> mocked_validation end] do
       { :ok, _ } = check("http://validationhell.com", checker_url: "http://example.com/validator/")
     end
   end
 
   test "handles http errors" do
-    with_mock HTTPoison, [get: fn(_url) -> mocked_http_error(:timeout) end] do
+    with_mock HTTPoison, [get: fn(_url, _headers, _options) -> mocked_http_error(:timeout) end] do
       { :error, :timeout } = check("http://example.com")
     end
 
-    with_mock HTTPoison, [get: fn(_url) -> mocked_http_error(:econnrefused) end] do
+    with_mock HTTPoison, [get: fn(_url, _headers, _options) -> mocked_http_error(:econnrefused) end] do
       { :error, :econnrefused } = check("http://example.com")
     end
   end
 
   test "treats non-200 status code as errors" do
-    with_mock HTTPoison, [get: fn(_url) -> mocked_response(301) end] do
+    with_mock HTTPoison, [get: fn(_url, _headers, _options) -> mocked_response(301) end] do
       { :error, 301 } = check("http://example.com")
     end
 
-    with_mock HTTPoison, [get: fn(_url) -> mocked_response(404) end] do
+    with_mock HTTPoison, [get: fn(_url, _headers, _options) -> mocked_response(404) end] do
       { :error, 404 } = check("http://example.com")
     end
 
-    with_mock HTTPoison, [get: fn(_url) -> mocked_response(500) end] do
+    with_mock HTTPoison, [get: fn(_url, _headers, _options) -> mocked_response(500) end] do
       { :error, 500 } = check("http://example.com")
     end
   end

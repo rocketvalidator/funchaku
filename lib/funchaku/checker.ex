@@ -27,7 +27,7 @@ defmodule Funchaku.Checker do
     options = Keyword.merge(default_options, options)
 
     vnu_request_querystring(options[:checker_url], url)
-    |> HTTPoison.get
+    |> HTTPoison.get([], [recv_timeout: 15_000])
     |> handle_response
   end
 
