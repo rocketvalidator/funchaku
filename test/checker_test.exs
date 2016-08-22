@@ -117,13 +117,13 @@ defmodule CheckerTest do
   end
 
   test "uses http://validator.w3.org/nu/ by default" do
-    with_mock HTTPoison, [get: fn("http://validator.w3.org/nu/?out=json&doc=http://validationhell.com", _headers, _options) -> mocked_validation end] do
+    with_mock HTTPoison, [get: fn("http://validator.w3.org/nu/?doc=http%3A%2F%2Fvalidationhell.com&out=json", _headers, _options) -> mocked_validation end] do
       { :ok, _ } = check "http://validationhell.com"
     end
   end
 
   test "can use another validator via the checker_url option" do
-    with_mock HTTPoison, [get: fn("http://example.com/validator/?out=json&doc=http://validationhell.com", _headers, _options) -> mocked_validation end] do
+    with_mock HTTPoison, [get: fn("http://example.com/validator/?doc=http%3A%2F%2Fvalidationhell.com&out=json", _headers, _options) -> mocked_validation end] do
       { :ok, _ } = check("http://validationhell.com", checker_url: "http://example.com/validator/")
     end
   end

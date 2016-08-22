@@ -62,7 +62,9 @@ defmodule Funchaku.Checker do
   end
 
   defp vnu_request_querystring(checker_url, url) do
-    "#{checker_url}?out=json&doc=#{URI.encode(url)}"
+    query = URI.encode_query(%{doc: url, out: "json"})
+
+    "#{checker_url}?#{query}"
   end
 
   defp handle_response({ :ok, %{ status_code: 200, body: body }}) do
