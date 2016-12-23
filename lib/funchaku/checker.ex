@@ -57,18 +57,18 @@ defmodule Funchaku.Checker do
     options = Keyword.merge(default_options, options)
 
     options[:checker_url]
-    |> HTTPoison.post({:multipart, [{"out", "json"}, {"content", html}]})
+    |> HTTPoison.post({:multipart, [{ "out", "json" }, { "content", html }]})
     |> handle_response
   end
 
   defp vnu_request_querystring(checker_url, url) do
-    query = URI.encode_query(%{doc: url, out: "json"})
+    query = URI.encode_query(%{ doc: url, out: "json" })
 
     "#{checker_url}?#{query}"
   end
 
   defp handle_response({ :ok, %{ status_code: 200, body: body }}) do
-    { :ok,    Poison.Parser.parse!(body) |> parsed_messages }
+    { :ok, Poison.Parser.parse!(body) |> parsed_messages }
   end
 
   defp handle_response({ :ok, %{ status_code: status }}) do
@@ -97,7 +97,7 @@ defmodule Funchaku.Checker do
 
   def adapt_message_structure(messages) do
     Enum.map(messages, fn(m) ->
-      if(is_nil(m["firstLine"]) and not is_nil(m["lastLine"])) do
+      if is_nil(m["firstLine"]) and not is_nil(m["lastLine"]) do
         Map.put(m, "firstLine", m["lastLine"])
       else
         m

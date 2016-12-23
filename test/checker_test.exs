@@ -19,13 +19,13 @@ defmodule CheckerTest do
       assert length(errors)   == 11
       assert length(warnings) ==  1
 
-      warning = %{"extract" => "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n<html",
-                  "firstColumn" => 1, "hiliteLength" => 109, "hiliteStart" => 0, "lastColumn" => 109, "firstLine" => 1, "lastLine" => 1,
-                  "message" => "Obsolete doctype. Expected “<!DOCTYPE html>”.", "subType" => "warning", "type" => "info"}
+      warning = %{ "extract" => "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n<html",
+                   "firstColumn" => 1, "hiliteLength" => 109, "hiliteStart" => 0, "lastColumn" => 109, "firstLine" => 1, "lastLine" => 1,
+                   "message" => "Obsolete doctype. Expected “<!DOCTYPE html>”.", "subType" => "warning", "type" => "info" }
 
-      error = %{"extract" => " href=\"/\"><img\n src=\"/images/fire.png\" align=\"absmiddle\" width=\"30\" hspace=\"5\"><stron",
-                "firstColumn" => 37, "firstLine" => 55, "hiliteLength" => 69, "hiliteStart" => 10, "lastColumn" => 64, "lastLine" => 56,
-                "message" => "The “align” attribute on the “img” element is obsolete. Use CSS instead.", "type" => "error"}
+      error = %{ "extract" => " href=\"/\"><img\n src=\"/images/fire.png\" align=\"absmiddle\" width=\"30\" hspace=\"5\"><stron",
+                 "firstColumn" => 37, "firstLine" => 55, "hiliteLength" => 69, "hiliteStart" => 10, "lastColumn" => 64, "lastLine" => 56,
+                 "message" => "The “align” attribute on the “img” element is obsolete. Use CSS instead.", "type" => "error" }
 
       assert first_message == warning
       assert first_warning == warning
@@ -99,7 +99,7 @@ defmodule CheckerTest do
                    "message"      => "The “language” attribute on the “script” element is obsolete. You can safely omit it.",
                    "type"         => "info",
                    "firstColumn"  => 13,
-                   "subType"      => "warning"}
+                   "subType"      => "warning" }
 
       error = %{ "hiliteLength"   => 1,
                  "hiliteStart"    => 10,
@@ -108,7 +108,7 @@ defmodule CheckerTest do
                  "message"        => "End of file seen when expecting text or an end tag.",
                  "type"           => "error",
                  "extract"        => "    </html>",
-                 "lastColumn"     => 15}
+                 "lastColumn"     => 15 }
 
       assert first_message == warning
       assert first_warning == warning
@@ -345,6 +345,6 @@ defmodule CheckerTest do
   end
 
   defp mocked_http_error(reason) do
-    { :error, %HTTPoison.Error{id: nil, reason: reason} }
+    { :error, %HTTPoison.Error{id: nil, reason: reason } }
   end
 end
