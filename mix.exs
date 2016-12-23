@@ -31,7 +31,7 @@ defmodule Funchaku.Mixfile do
   defp deps do
     [
       { :httpoison, "~> 0.9" },
-      { :poison,    "~> 2.2" },
+      { :poison,    "~> 3.0" },
       { :ex_doc,    ">= 0.0.0", only: :dev},
       { :mock,      "~> 0.1", only: :test}
     ]
