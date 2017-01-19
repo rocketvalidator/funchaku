@@ -1,6 +1,6 @@
 defmodule Funchaku do
   @moduledoc """
-  Funchaku is an Elixir client for the Nu HTML Chcker.
+  Funchaku is an Elixir client for the Nu HTML Checker.
   """
 
   @doc """
