@@ -4,12 +4,12 @@ defmodule Funchaku.Mixfile do
   def project do
     [app: :funchaku,
      version: "0.6.0",
-     elixir: "~> 1.3",
+     elixir: "~> 1.8.1",
      description: "Elixir client for the Nu HTML Checker",
-     package: package,
+     package: package(),
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps]
+     deps: deps()]
   end
 
   # Configuration for the OTP application

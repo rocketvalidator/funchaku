@@ -6,48 +6,71 @@ defmodule CheckerTest do
   import Mock
 
   test "validates a URL" do
-    with_mock HTTPoison, [get: fn(_url, _headers, _options) -> mocked_validation end] do
-      { status, results } = check "http://validationhell.com"
+    with_mock HTTPoison, get: fn _url, _headers, _options -> mocked_validation() end do
+      {status, results} = check "http://validationhell.com"
 
       assert status == :ok
 
-      messages = [ first_message | _ ] = results[:messages]
-      errors   = [ first_error   | _ ] = results[:errors]
-      warnings = [ first_warning | _ ] = results[:warnings]
+      messages = [first_message | _] = results[:messages]
+      errors = [first_error | _] = results[:errors]
+      warnings = [first_warning | _] = results[:warnings]
 
       assert length(messages) == 12
-      assert length(errors)   == 11
-      assert length(warnings) ==  1
+      assert length(errors) == 11
+      assert length(warnings) == 1
 
-      warning = %{ "extract" => "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n<html",
-                   "firstColumn" => 1, "hiliteLength" => 109, "hiliteStart" => 0, "lastColumn" => 109, "firstLine" => 1, "lastLine" => 1,
-                   "message" => "Obsolete doctype. Expected “<!DOCTYPE html>”.", "subType" => "warning", "type" => "info" }
+      warning = %{
+        "extract" =>
+          "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n<html",
+        "firstColumn" => 1,
+        "hiliteLength" => 109,
+        "hiliteStart" => 0,
+        "lastColumn" => 109,
+        "firstLine" => 1,
+        "lastLine" => 1,
+        "message" => "Obsolete doctype. Expected “<!DOCTYPE html>”.",
+        "subType" => "warning",
+        "type" => "info"
+      }
 
-      error = %{ "extract" => " href=\"/\"><img\n src=\"/images/fire.png\" align=\"absmiddle\" width=\"30\" hspace=\"5\"><stron",
-                 "firstColumn" => 37, "firstLine" => 55, "hiliteLength" => 69, "hiliteStart" => 10, "lastColumn" => 64, "lastLine" => 56,
-                 "message" => "The “align” attribute on the “img” element is obsolete. Use CSS instead.", "type" => "error" }
+      error = %{
+        "extract" =>
+          " href=\"/\"><img\n src=\"/images/fire.png\" align=\"absmiddle\" width=\"30\" hspace=\"5\"><stron",
+        "firstColumn" => 37,
+        "firstLine" => 55,
+        "hiliteLength" => 69,
+        "hiliteStart" => 10,
+        "lastColumn" => 64,
+        "lastLine" => 56,
+        "message" => "The “align” attribute on the “img” element is obsolete. Use CSS instead.",
+        "type" => "error"
+      }
 
       assert first_message == warning
       assert first_warning == warning
-      assert first_error   == error
+      assert first_error == error
     end
   end
 
   test "treats non-document-error separate from errors" do
-    with_mock HTTPoison, [get: fn(_url, _headers, _options) -> mocked_validation_for_non_document_error end] do
-      { status, results } = check "http://example.com/404"
+    with_mock HTTPoison,
+      get: fn _url, _headers, _options -> mocked_validation_for_non_document_error() end do
+      {status, results} = check "http://example.com/404"
 
       assert status == :ok
 
-      messages            = [ first_message | _ ]            = results[:messages]
-      non_document_errors = [ first_non_document_error | _ ] = results[:non_document_errors]
+      messages = [first_message | _] = results[:messages]
+      non_document_errors = [first_non_document_error | _] = results[:non_document_errors]
 
       assert length(messages) == 1
       assert length(non_document_errors) == 1
 
-      error = %{ "message" => "HTTP resource not retrievable. The HTTP status from the remote server was: 404.",
-                 "type"    => "non-document-error",
-                 "subType" => "io"}
+      error = %{
+        "message" =>
+          "HTTP resource not retrievable. The HTTP status from the remote server was: 404.",
+        "type" => "non-document-error",
+        "subType" => "io"
+      }
 
       assert first_message == error
       assert first_non_document_error == error
@@ -55,10 +78,10 @@ defmodule CheckerTest do
   end
 
   test "firstLine is taken from lastLine if missing" do
-    with_mock HTTPoison, [get: fn(_url, _headers, _options) -> mocked_validation end] do
-      { :ok, results } = check "http://validationhell.com"
+    with_mock HTTPoison, get: fn _url, _headers, _options -> mocked_validation() end do
+      {:ok, results} = check "http://validationhell.com"
 
-      [ first_message | [second_message | _] ] = results[:messages]
+      [first_message | [second_message | _]] = results[:messages]
 
       assert first_message["firstLine"] == 1
       assert second_message["firstLine"] == 55
@@ -66,94 +89,110 @@ defmodule CheckerTest do
   end
 
   test "validates via text" do
-    with_mock HTTPoison, [post: fn(_url, _body) -> mocked_validation_for_text end] do
-      { status, results } = check_text """
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <script language='javascript'></script>
-            <title>Test
-          </head>
-          <body>
-            <p>
-          </body>
-        </html>
-      """
+    with_mock HTTPoison, post: fn _url, _body -> mocked_validation_for_text() end do
+      {status, results} =
+        check_text("""
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <script language='javascript'></script>
+              <title>Test
+            </head>
+            <body>
+              <p>
+            </body>
+          </html>
+        """)
 
       assert status == :ok
 
-      messages = [ first_message | _ ] = results[:messages]
-      errors   = [ first_error   | _ ] = results[:errors]
-      warnings = [ first_warning | _ ] = results[:warnings]
+      messages = [first_message | _] = results[:messages]
+      errors = [first_error | _] = results[:errors]
+      warnings = [first_warning | _] = results[:warnings]
 
       assert length(messages) == 3
-      assert length(errors)   == 2
+      assert length(errors) == 2
       assert length(warnings) == 1
 
-      warning = %{ "hiliteStart"  => 10,
-                   "extract"      => "          <script language='javascript'></scri",
-                   "hiliteLength" => 30,
-                   "lastColumn"   => 42,
-                   "firstLine"    => 4,
-                   "lastLine"     => 4,
-                   "message"      => "The “language” attribute on the “script” element is obsolete. You can safely omit it.",
-                   "type"         => "info",
-                   "firstColumn"  => 13,
-                   "subType"      => "warning" }
+      warning = %{
+        "hiliteStart" => 10,
+        "extract" => "          <script language='javascript'></scri",
+        "hiliteLength" => 30,
+        "lastColumn" => 42,
+        "firstLine" => 4,
+        "lastLine" => 4,
+        "message" =>
+          "The “language” attribute on the “script” element is obsolete. You can safely omit it.",
+        "type" => "info",
+        "firstColumn" => 13,
+        "subType" => "warning"
+      }
 
-      error = %{ "hiliteLength"   => 1,
-                 "hiliteStart"    => 10,
-                 "firstLine"      => 10,
-                 "lastLine"       => 10,
-                 "message"        => "End of file seen when expecting text or an end tag.",
-                 "type"           => "error",
-                 "extract"        => "    </html>",
-                 "lastColumn"     => 15 }
+      error = %{
+        "hiliteLength" => 1,
+        "hiliteStart" => 10,
+        "firstLine" => 10,
+        "lastLine" => 10,
+        "message" => "End of file seen when expecting text or an end tag.",
+        "type" => "error",
+        "extract" => "    </html>",
+        "lastColumn" => 15
+      }
 
       assert first_message == warning
       assert first_warning == warning
-      assert first_error   == error
+      assert first_error == error
     end
   end
 
   test "uses http://validator.w3.org/nu/ by default" do
-    with_mock HTTPoison, [get: fn("http://validator.w3.org/nu/?doc=http%3A%2F%2Fvalidationhell.com&out=json", _headers, _options) -> mocked_validation end] do
-      { :ok, _ } = check "http://validationhell.com"
+    with_mock HTTPoison,
+      get: fn "http://validator.w3.org/nu/?doc=http%3A%2F%2Fvalidationhell.com&out=json",
+              _headers,
+              _options ->
+        mocked_validation()
+      end do
+      {:ok, _} = check "http://validationhell.com"
     end
   end
 
   test "can use another validator via the checker_url option" do
-    with_mock HTTPoison, [get: fn("http://example.com/validator/?doc=http%3A%2F%2Fvalidationhell.com&out=json", _headers, _options) -> mocked_validation end] do
-      { :ok, _ } = check("http://validationhell.com", checker_url: "http://example.com/validator/")
+    with_mock HTTPoison,
+      get: fn "http://example.com/validator/?doc=http%3A%2F%2Fvalidationhell.com&out=json",
+              _headers,
+              _options ->
+        mocked_validation()
+      end do
+      {:ok, _} = check("http://validationhell.com", checker_url: "http://example.com/validator/")
     end
   end
 
   test "handles http errors" do
-    with_mock HTTPoison, [get: fn(_url, _headers, _options) -> mocked_http_error(:timeout) end] do
-      { :error, :timeout } = check("http://example.com")
+    with_mock HTTPoison, get: fn _url, _headers, _options -> mocked_http_error(:timeout) end do
+      {:error, :timeout} = check("http://example.com")
     end
 
-    with_mock HTTPoison, [get: fn(_url, _headers, _options) -> mocked_http_error(:econnrefused) end] do
-      { :error, :econnrefused } = check("http://example.com")
+    with_mock HTTPoison, get: fn _url, _headers, _options -> mocked_http_error(:econnrefused) end do
+      {:error, :econnrefused} = check("http://example.com")
     end
   end
 
   test "treats non-200 status code as errors" do
-    with_mock HTTPoison, [get: fn(_url, _headers, _options) -> mocked_response(301) end] do
-      { :error, 301 } = check("http://example.com")
+    with_mock HTTPoison, get: fn _url, _headers, _options -> mocked_response(301) end do
+      {:error, 301} = check("http://example.com")
     end
 
-    with_mock HTTPoison, [get: fn(_url, _headers, _options) -> mocked_response(404) end] do
-      { :error, 404 } = check("http://example.com")
+    with_mock HTTPoison, get: fn _url, _headers, _options -> mocked_response(404) end do
+      {:error, 404} = check("http://example.com")
     end
 
-    with_mock HTTPoison, [get: fn(_url, _headers, _options) -> mocked_response(500) end] do
-      { :error, 500 } = check("http://example.com")
+    with_mock HTTPoison, get: fn _url, _headers, _options -> mocked_response(500) end do
+      {:error, 500} = check("http://example.com")
     end
   end
 
   defp mocked_validation do
-    { :ok, %{ status_code: 200, body: mocked_json } }
+    {:ok, %{status_code: 200, body: mocked_json()}}
   end
 
   defp mocked_json do
@@ -280,7 +319,7 @@ defmodule CheckerTest do
   end
 
   defp mocked_validation_for_non_document_error do
-    { :ok, %{ status_code: 200, body: mocked_json_for_non_document_error } }
+    {:ok, %{status_code: 200, body: mocked_json_for_non_document_error()}}
   end
 
   defp mocked_json_for_non_document_error do
@@ -297,7 +336,7 @@ defmodule CheckerTest do
   end
 
   defp mocked_validation_for_text do
-    { :ok, %{ status_code: 200, body: mocked_json_for_text } }
+    {:ok, %{status_code: 200, body: mocked_json_for_text()}}
   end
 
   defp mocked_json_for_text do
@@ -341,10 +380,10 @@ defmodule CheckerTest do
   end
 
   defp mocked_response(status) do
-    { :ok, %{ status_code: status } }
+    {:ok, %{status_code: status}}
   end
 
   defp mocked_http_error(reason) do
-    { :error, %HTTPoison.Error{id: nil, reason: reason } }
+    {:error, %HTTPoison.Error{id: nil, reason: reason}}
   end
 end
