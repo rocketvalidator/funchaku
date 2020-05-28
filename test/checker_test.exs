@@ -167,6 +167,18 @@ defmodule CheckerTest do
     end
   end
 
+  test "custom User Agent via the user_agent option" do
+    with_mock HTTPoison,
+      get:
+        fn "http://validator.w3.org/nu/?doc=http%3A%2F%2Fvalidationhell.com&out=json&useragent=CustomAgent",
+           _headers,
+           _options ->
+          mocked_validation()
+        end do
+      {:ok, _} = check("http://validationhell.com", user_agent: "CustomAgent")
+    end
+  end
+
   test "handles http errors" do
     with_mock HTTPoison, get: fn _url, _headers, _options -> mocked_http_error(:timeout) end do
       {:error, :timeout} = check("http://example.com")

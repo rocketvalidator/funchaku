@@ -24,10 +24,10 @@ defmodule Funchaku.Checker do
       "Obsolete doctype. Expected “<!DOCTYPE html>”."
   """
   def check(url, options \\ []) do
-    options = Keyword.merge(default_options, options)
+    options = Keyword.merge(default_options(), options)
 
-    vnu_request_querystring(options[:checker_url], url)
-    |> HTTPoison.get([], [recv_timeout: 15_000])
+    vnu_request_querystring(url, options)
+    |> HTTPoison.get([], recv_timeout: 15_000)
     |> handle_response
   end
 
@@ -54,49 +54,59 @@ defmodule Funchaku.Checker do
       "Element “head” is missing a required instance of child element “title”."
   """
   def check_text(html, options \\ []) do
-    options = Keyword.merge(default_options, options)
+    options = Keyword.merge(default_options(), options)
 
     options[:checker_url]
-    |> HTTPoison.post({:multipart, [{ "out", "json" }, { "content", html }]})
+    |> HTTPoison.post({:multipart, [{"out", "json"}, {"content", html}]})
     |> handle_response
   end
 
-  defp vnu_request_querystring(checker_url, url) do
-    query = URI.encode_query(%{ doc: url, out: "json" })
+  defp vnu_request_querystring(url, checker_url: checker_url, user_agent: user_agent) do
+    query =
+      %{doc: url, out: "json", useragent: user_agent}
+      |> URI.encode_query()
 
     "#{checker_url}?#{query}"
   end
 
-  defp handle_response({ :ok, %{ status_code: 200, body: body }}) do
-    { :ok, Poison.Parser.parse!(body) |> parsed_messages }
+  defp vnu_request_querystring(url, checker_url: checker_url) do
+    query =
+      %{doc: url, out: "json"}
+      |> URI.encode_query()
+
+    "#{checker_url}?#{query}"
   end
 
-  defp handle_response({ :ok, %{ status_code: status }}) do
-    { :error, status }
+  defp handle_response({:ok, %{status_code: 200, body: body}}) do
+    {:ok, Poison.Parser.parse!(body) |> parsed_messages}
   end
 
-  defp handle_response({ :error, %{ reason: reason } }) do
-    { :error, reason }
+  defp handle_response({:ok, %{status_code: status}}) do
+    {:error, status}
+  end
+
+  defp handle_response({:error, %{reason: reason}}) do
+    {:error, reason}
   end
 
   defp parsed_messages(json) do
-    messages            = json["messages"] |> adapt_message_structure
-    non_document_errors = Enum.filter(messages, &(&1["type"]    == "non-document-error"))
-    errors              = Enum.filter(messages, &(&1["type"]    == "error"))
-    warnings            = Enum.filter(messages, &(&1["subType"] == "warning"))
-    extra               = ((messages -- non_document_errors) -- errors) -- warnings
+    messages = json["messages"] |> adapt_message_structure
+    non_document_errors = Enum.filter(messages, &(&1["type"] == "non-document-error"))
+    errors = Enum.filter(messages, &(&1["type"] == "error"))
+    warnings = Enum.filter(messages, &(&1["subType"] == "warning"))
+    extra = ((messages -- non_document_errors) -- errors) -- warnings
 
     %{
-       messages:            messages,
-       non_document_errors: non_document_errors,
-       errors:              errors,
-       warnings:            warnings,
-       extra:               extra
+      messages: messages,
+      non_document_errors: non_document_errors,
+      errors: errors,
+      warnings: warnings,
+      extra: extra
     }
   end
 
   def adapt_message_structure(messages) do
-    Enum.map(messages, fn(m) ->
+    Enum.map(messages, fn m ->
       if is_nil(m["firstLine"]) and not is_nil(m["lastLine"]) do
         Map.put(m, "firstLine", m["lastLine"])
       else
