@@ -2,7 +2,6 @@
 
 [![Travis](https://img.shields.io/travis/sitevalidator/funchaku.svg?style=flat-square)](https://travis-ci.org/sitevalidator/funchaku)
 [![Hex.pm](https://img.shields.io/hexpm/v/funchaku.svg?style=flat-square)](https://hex.pm/packages/funchaku)
-[![Deps Status](https://beta.hexfaktor.org/badge/all/github/sitevalidator/funchaku.svg)](https://beta.hexfaktor.org/github/sitevalidator/funchaku)
 
 Funchaku is an Elixir client for the [Nu HTML Checker](https://github.com/validator/validator). It lets you easily check HTML markup of web pages, by querying a remote instance of the checker.
 
