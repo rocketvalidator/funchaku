@@ -62,7 +62,7 @@ The `results[:messages]` list contains all messages returned by the checker, but
 By default, Funchaku will query the Nu HTML Checker at http://validator.w3.org/nu but you're encouraged to install your own instance and use it instead. You can follow the [Nu installation instructions](https://github.com/validator/validator) and then specify the alternate server like this:
 
 ```elixir
-Funchaku.check('http://example.com', checker_url: 'http://example.com/validator')
+Funchaku.check("http://example.com", checker_url: "http://example.com/validator")
 ```
 
 ## Specifying a custom User-Agent string
